@@ -9,6 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddScoped<Backend.Repositories.ExerciseRepository>();
 
 var app = builder.Build();
 
