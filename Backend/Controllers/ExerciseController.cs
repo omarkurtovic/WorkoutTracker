@@ -15,13 +15,13 @@ public class ExercisesController : ControllerBase
         _exerciseRepository = exerciseRepository;
     }
 
-    [HttpGet(Name = "GetAllExercises")]
+    [HttpGet]
     public async Task<IEnumerable<Exercise>> GetAll()
     {
         return await _exerciseRepository.GetAllAsync();
     }
 
-    [HttpGet("{id}", Name = "GetExerciseById")]
+    [HttpGet("{id}")]
     public async Task<ActionResult<Exercise>> GetById(int id)
     {
         var exercise = await _exerciseRepository.GetByIdAsync(id);
@@ -32,21 +32,21 @@ public class ExercisesController : ControllerBase
         return exercise;
     }
 
-    [HttpPost(Name = "CreateExercise")]
+    [HttpPost]
     public async Task<ActionResult<Exercise>> Create(Exercise exercise)
     {
         await _exerciseRepository.AddAsync(exercise);
         return Ok();
     }
 
-    [HttpPut("{id}", Name = "UpdateExercise")]
+    [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, Exercise exercise)
     {
         await _exerciseRepository.UpdateAsync(id, exercise);
         return Ok();
     }
 
-    [HttpDelete("{id}", Name = "DeleteExercise")]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
         await _exerciseRepository.DeleteAsync(id);
