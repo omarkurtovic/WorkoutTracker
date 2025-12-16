@@ -79,7 +79,7 @@ function Exercises() {
 
 
   return (
-    <Container maxWidth="md">
+    <>
       <Grid container spacing={2} alignItems="center">
         <Grid size={12}>
           <Typography variant="h3">Exercises</Typography>
@@ -87,33 +87,33 @@ function Exercises() {
         <Grid size={12}>
           <Button variant="contained" startIcon={<AddIcon />} onClick={handleClickOpen}>Add</Button>
         </Grid>
-          {exercises.length == 0 && 
-            <Grid size={12}>
-              <Typography variant="body1">No exercises found. Please add some exercises.</Typography>
-            </Grid>
-          }
-          {exercises.length != 0 && exercises.map((exercise: Exercise) => (
-            <Grid key={exercise.id} size={{ xs: 12, md: 6, lg:4 }} >
-              <Paper elevation={2} variant="outlined" sx={{ p:2 }}>
-                <Stack spacing={2}>
-                  <Typography variant="h5">{exercise.name}</Typography>
-                  <Typography variant="body1">Target Muscle: {exercise.targetMuscle}</Typography>
-                  <Stack spacing={2} direction="row">
-                    <Button variant="contained" startIcon={<EditIcon />}
-                      onClick={() => handleEdit(exercise.id)}>Edit</Button>
-                    <Button variant='contained' startIcon={<DeleteIcon />} color="error"
-                      onClick={() => handleDelete(exercise.id)}>Delete</Button>
-                  </Stack>
+        {exercises.length == 0 &&
+          <Grid size={12}>
+            <Typography variant="body1">No exercises found. Please add some exercises.</Typography>
+          </Grid>
+        }
+        {exercises.length != 0 && exercises.map((exercise: Exercise) => (
+          <Grid key={exercise.id} size={{ xs: 12, md: 6, lg: 4 }} >
+            <Paper elevation={2} variant="outlined" sx={{ p: 2 }}>
+              <Stack spacing={2}>
+                <Typography variant="h5">{exercise.name}</Typography>
+                <Typography variant="body1">Target Muscle: {exercise.targetMuscle}</Typography>
+                <Stack spacing={2} direction="row">
+                  <Button variant="contained" startIcon={<EditIcon />}
+                    onClick={() => handleEdit(exercise.id)}>Edit</Button>
+                  <Button variant='contained' startIcon={<DeleteIcon />} color="error"
+                    onClick={() => handleDelete(exercise.id)}>Delete</Button>
                 </Stack>
-              </Paper>
-            </Grid>
-          ))}
+              </Stack>
+            </Paper>
+          </Grid>
+        ))}
       </Grid>
       <ExerciseDialog open={openExerciseDialog} onClose={handleClose} id={exerciseId} />
 
       <SuccessAlert message={successMessage} />
       <ErrorAlert message={errorMessage} />
-    </Container>
+    </>
   )
 }
 
