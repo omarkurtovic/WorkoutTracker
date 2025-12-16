@@ -122,7 +122,7 @@ export default function ExerciseDialog({ open, onClose, id=0 }: ExerciseDialogPr
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
           <Button type="submit" form="subscription-form">
-            Submit
+            Save
           </Button>
         </DialogActions>
       </Dialog>
