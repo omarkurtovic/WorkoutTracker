@@ -11,6 +11,8 @@ namespace Backend.Database
         {
             _configuration = configuration;
         }
+
+        public DbSet<Workout> Workouts { get; set; }
         public DbSet<Exercise> Exercises{get; set;}
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
