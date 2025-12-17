@@ -13,10 +13,10 @@ import Paper from '@mui/material/Paper';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import type { Exercise } from '../../types';
+import SuccessAlert from '../shared/components/SuccessAlert';
+import ErrorAlert from '../shared/components/ErrorAlert';
 
-import type { Exercise } from '../types';
-import ErrorAlert from './shared/components/ErrorAlert';
-import SuccessAlert from './shared/components/SuccessAlert';
 
 function Exercises() {
 

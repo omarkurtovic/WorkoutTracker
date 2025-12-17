@@ -2,14 +2,21 @@ import './App.css'
 import Container from '@mui/material/Container'
 import Button from '@mui/material/Button'
 import React from 'react';
-import Exercises from './features/Exercises';
 import { AppBar, Box, IconButton, Stack, Toolbar, Typography } from '@mui/material';
+import Exercises from './features/exercises/Exercises';
+import Workouts from './features/workouts/Workouts';
 
 function App() {
 
   const [showExercises, setShowExercises] = React.useState(false);
+  const [showWorkouts, setShowWorkouts] = React.useState(false);
+
   const handleOpenExercises = () => {
     setShowExercises(!showExercises);
+  }
+
+  const handleOpenWorkouts = () => {
+    setShowWorkouts(!showWorkouts);
   }
 
 
@@ -24,7 +31,7 @@ function App() {
             <Stack spacing={2} direction="row">
               <Button color="inherit">Dashboard</Button>
               <Button color="inherit" onClick={handleOpenExercises}>Exercises</Button>
-              <Button color="inherit" onClick={handleOpenExercises}>Workouts</Button>
+              <Button color="inherit" onClick={handleOpenWorkouts}>Workouts</Button>
             </Stack>
           </Toolbar>
         </AppBar>
@@ -32,6 +39,11 @@ function App() {
       <Box>
         {showExercises && 
           <Exercises />
+        }
+      </Box>
+      <Box>
+        {showWorkouts && 
+          <Workouts />
         }
       </Box>
   </Container>

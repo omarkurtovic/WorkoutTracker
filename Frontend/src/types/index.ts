@@ -4,3 +4,10 @@ export interface Exercise {
   targetMuscle: string;
   description?: string;
 }
+
+
+export interface Workout{
+  id: number,
+  name: string,
+  exercises: Exercise[]
+}

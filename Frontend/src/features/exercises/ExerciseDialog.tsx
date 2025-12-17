@@ -5,9 +5,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import type { Exercise } from '../types';
-import SuccessAlert from './shared/components/SuccessAlert';
-import ErrorAlert from './shared/components/ErrorAlert';
+import type { Exercise } from '../../types';
+import SuccessAlert from '../shared/components/SuccessAlert';
+import ErrorAlert from '../shared/components/ErrorAlert';
 
 
 interface ExerciseDialogProps {
