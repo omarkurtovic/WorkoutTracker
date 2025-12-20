@@ -8,14 +8,16 @@ import Workouts from './features/workouts/Workouts';
 
 function App() {
 
-  const [showExercises, setShowExercises] = React.useState(false);
+  const [showExercises, setShowExercises] = React.useState(true);
   const [showWorkouts, setShowWorkouts] = React.useState(false);
 
   const handleOpenExercises = () => {
+    setShowWorkouts(false);
     setShowExercises(!showExercises);
   }
 
   const handleOpenWorkouts = () => {
+    setShowExercises(false);
     setShowWorkouts(!showWorkouts);
   }
 

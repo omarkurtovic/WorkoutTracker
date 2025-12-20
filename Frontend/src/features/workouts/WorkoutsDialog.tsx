@@ -6,7 +6,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import type { Exercise } from '../../types';
-import { Autocomplete, Box, Typography } from '@mui/material';
+import { Autocomplete, Box, Grid, Typography } from '@mui/material';
 import SuccessAlert from '../shared/components/SuccessAlert';
 import ErrorAlert from '../shared/components/ErrorAlert';
 
@@ -21,7 +21,8 @@ export default function WorkoutDialog({ open, onClose, id=0 }: WorkoutDialogProp
 
   const [name, setName] = React.useState("");
   const [allExercises, setAllExercises] = React.useState<Exercise[]>([]);
-  const [exercises, setExercises] = React.useState<Exercise[]>([]);
+  const [exercisesInUse, setExercisesInUse] = React.useState<Exercise[]>([]);
+  const [selectedExercise, setSelectedExercise] = React.useState<Exercise | null>(null);
 
 
   const [successMessage, setSuccessMessage] = React.useState("");
@@ -74,7 +75,7 @@ export default function WorkoutDialog({ open, onClose, id=0 }: WorkoutDialogProp
       const fetchWorkout = async() => {
         if (id === 0){
           setName("");
-          setExercises([]);
+          setExercisesInUse([]);
           return;
         }
         const url = `http://localhost:5103/workouts/${id}`;
@@ -89,7 +90,7 @@ export default function WorkoutDialog({ open, onClose, id=0 }: WorkoutDialogProp
             
             let data = await response.json();
             setName(data.name);
-            setExercises(data.exercises || []);
+            setExercisesInUse(data.exercises || []);
 
             } catch (error) {
               console.error('Error getting workout:', error);
@@ -123,9 +124,31 @@ export default function WorkoutDialog({ open, onClose, id=0 }: WorkoutDialogProp
         fetchWorkout();
         fetchExercises();
       }, [open, id]);
+    
+      function getExerciseOptions(){
+        let options = [];
+        for(let exercise of allExercises){
+          if(!exercisesInUse.find(ex => ex.id === exercise.id)){
+            options.push({ label: exercise.name, id: exercise.id });
+          }
+        }
+        return options;
+      }
 
       function handleRemoveExercise(exerciseId: number) {
-        setExercises(prevExercises => prevExercises.filter(ex => ex.id !== exerciseId));
+        setExercisesInUse(prevExercises => prevExercises.filter(ex => ex.id !== exerciseId));
+      }
+
+      function handleAddExercise(){
+        if(!selectedExercise){
+            return;
+        }
+        if(exercisesInUse.find(ex => ex.id === selectedExercise.id)){
+            return;
+        }
+
+        exercisesInUse.push(selectedExercise);
+        setExercisesInUse(exercisesInUse);
       }
 
   return (
@@ -137,23 +160,24 @@ export default function WorkoutDialog({ open, onClose, id=0 }: WorkoutDialogProp
             <TextField autoFocus required margin="dense"
               id="name" name="name" label="Name" type="text"
               fullWidth variant="standard" value={name} onChange={(e) => setName(e.target.value)}/>
-              {exercises.map(exercise => (
+              {exercisesInUse.map(exercise => (
                 <Box key={exercise.id} sx={{ mt: 2, mb: 2, p: 2, border: '1px solid #ccc', borderRadius: '4px' }}>
                     <Typography variant="h6">{exercise.name}</Typography>
-                    <Typography variant="body2">Target Muscle: {exercise.targetMuscle}</Typography>
-                    {exercise.description && (
-                      <Typography variant="body2">Description: {exercise.description}</Typography>
-                    )}
                     <Button onClick={() => handleRemoveExercise(exercise.id)}>Remove</Button>
                 </Box>
             ))}
 
-            <Autocomplete
-                disablePortal
-                options={allExercises}
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="Exercise" />}
-                />
+            <Box sx={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 2, alignItems: "center", mt: 2, mb: 2 }}>
+                <Autocomplete
+                    disablePortal onChange={(event, value) => {
+                        setSelectedExercise(allExercises.find(exercise => exercise.id == value?.id) || null);
+                    }}
+                    options={getExerciseOptions()}
+                    sx={{ width: 300 }}
+                    renderInput={(params) => <TextField {...params} label="Exercise" />}
+                    />
+                <Button variant='contained' onClick={() => handleAddExercise()}>Add</Button>
+            </Box>
             
           </form>
         </DialogContent>
