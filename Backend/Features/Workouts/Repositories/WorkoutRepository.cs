@@ -65,13 +65,12 @@ namespace Backend.Features.Workouts.Repositories
                 Name = workoutDto.Name
             };
             _context.Workouts.Add(workout);
-            await _context.SaveChangesAsync();
 
             foreach (var exerciseDto in workoutDto.Exercises)
             {
                 var workoutExercise = new WorkoutExercise
                 {
-                    WorkoutId = workout.Id,
+                    Workout = workout,
                     ExerciseId = exerciseDto.Id!.Value
                 };
                 _context.WorkoutExercises.Add(workoutExercise);
