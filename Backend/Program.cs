@@ -1,4 +1,6 @@
-using Backend.Database;
+using Backend;
+using Backend.Features.Exercises.Repositories;
+using Backend.Features.Workouts.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,11 +16,11 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<AppDbContext>();
-builder.Services.AddScoped<Backend.Repositories.ExerciseRepository>();
+builder.Services.AddScoped<ExerciseRepository>();
+builder.Services.AddScoped<WorkoutRepository>();
 
 var app = builder.Build();
 

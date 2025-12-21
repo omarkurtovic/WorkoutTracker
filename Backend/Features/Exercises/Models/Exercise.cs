@@ -1,4 +1,4 @@
-namespace Backend.Database.Models
+namespace Backend.Features.Exercises.Models
 {
     public class Exercise
     {

@@ -1,6 +1,5 @@
-using Backend.Database;
-using Backend.Database.Models;
-using Backend.Repositories;
+using Backend.Features.Workouts.Dtos;
+using Backend.Features.Workouts.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
@@ -16,15 +15,15 @@ public class WorkoutsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<Workout>> GetAll()
+    public async Task<IEnumerable<WorkoutDto>> GetAll()
     {
-        return await _workoutRepository.GetAllAsync();
+        return await _workoutRepository.GetAllWorkoutsAsync();
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Workout>> GetById(int id)
+    public async Task<ActionResult<WorkoutDto>> GetById(int id)
     {
-        var workout = await _workoutRepository.GetByIdAsync(id);
+        var workout = await _workoutRepository.GetWorkoutByIdAsync(id);
         if (workout == null)
         {
             return NotFound();
@@ -33,23 +32,23 @@ public class WorkoutsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Workout>> Create(Workout workout)
+    public async Task<ActionResult<WorkoutDto>> Create(WorkoutDto workoutDto)
     {
-        await _workoutRepository.AddAsync(workout);
+        await _workoutRepository.CreateWorkoutAsync(workoutDto);
         return Ok();
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, Workout workout)
+    public async Task<IActionResult> Update(int id, WorkoutDto workoutDto)
     {
-        await _workoutRepository.UpdateAsync(id, workout);
+        await _workoutRepository.EditWorkoutAsync(id, workoutDto);
         return Ok();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        await _workoutRepository.DeleteAsync(id);
+        await _workoutRepository.DeleteWorkoutAsync(id);
         return Ok();
     }
 }
