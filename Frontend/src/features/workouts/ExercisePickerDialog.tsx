@@ -1,8 +1,6 @@
 import React from "react";
 import type { Exercise } from "../../types";
 import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Stack } from "@mui/material";
 
 interface ExercisePickerDialogProps {

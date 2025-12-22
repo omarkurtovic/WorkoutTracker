@@ -20,15 +20,19 @@ namespace Backend.Features.Workouts.Repositories
             return await _context.Workouts
             .Include(w => w.WorkoutExercises)
             .ThenInclude(we => we.Exercise)
+            .Include(w => w.WorkoutExercises)
+            .ThenInclude(wes => wes.WorkoutExerciseSets)
             .Select(w => new WorkoutDto
             {
                 Id = w.Id,
                 Name = w.Name,
-                Exercises = w.WorkoutExercises.Select(we => new ExerciseDto
+                WorkoutExercises = w.WorkoutExercises.Select(we => new WorkoutExerciseDto
                 {
-                    Id = we.Exercise.Id,
-                    Name = we.Exercise.Name,
-                    Description = we.Exercise.Description
+                    ExerciseId = we.ExerciseId,
+                    WorkoutExerciseSets = we.WorkoutExerciseSets.Select(wes => new WorkoutExerciseSetDto
+                    {
+                        Repetitions = wes.Repetitions
+                    }).ToList()
                 }).ToList()
             }).ToListAsync();
         }
@@ -38,6 +42,8 @@ namespace Backend.Features.Workouts.Repositories
             var workout = await _context.Workouts
             .Include(w => w.WorkoutExercises)
             .ThenInclude(we => we.Exercise)
+            .Include(w => w.WorkoutExercises)
+            .ThenInclude(wes => wes.WorkoutExerciseSets)
             .FirstOrDefaultAsync(w => w.Id == id);
 
             if (workout == null)
@@ -49,12 +55,14 @@ namespace Backend.Features.Workouts.Repositories
             {
                 Id = workout.Id,
                 Name = workout.Name,
-                Exercises = [.. workout.WorkoutExercises.Select(we => new ExerciseDto
+                WorkoutExercises = workout.WorkoutExercises.Select(we => new WorkoutExerciseDto
                 {
-                    Id = we.Exercise.Id,
-                    Name = we.Exercise.Name,
-                    Description = we.Exercise.Description
-                })]
+                    ExerciseId = we.ExerciseId,
+                    WorkoutExerciseSets = we.WorkoutExerciseSets.Select(wes => new WorkoutExerciseSetDto
+                    {
+                        Repetitions = wes.Repetitions
+                    }).ToList()
+                }).ToList()
             };
         }
 
@@ -64,16 +72,25 @@ namespace Backend.Features.Workouts.Repositories
             {
                 Name = workoutDto.Name
             };
-            _context.Workouts.Add(workout);
+            _context.Add(workout);
 
-            foreach (var exerciseDto in workoutDto.Exercises)
+            foreach (var exercise in workoutDto.WorkoutExercises)
             {
                 var workoutExercise = new WorkoutExercise
                 {
                     Workout = workout,
-                    ExerciseId = exerciseDto.Id!.Value
+                    ExerciseId = exercise.ExerciseId
                 };
-                _context.WorkoutExercises.Add(workoutExercise);
+                _context.Add(workoutExercise);
+                foreach(var set in exercise.WorkoutExerciseSets)
+                {
+                    var workoutExerciseSet = new WorkoutExerciseSet
+                    {
+                        WorkoutExercise = workoutExercise,
+                        Repetitions = set.Repetitions
+                    };
+                    _context.Add(workoutExerciseSet);
+                }
             }
             await _context.SaveChangesAsync();
         }
@@ -87,19 +104,30 @@ namespace Backend.Features.Workouts.Repositories
             }
 
             workout.Name = workoutDto.Name;
-            _context.Workouts.Update(workout);
+            _context.Update(workout);
 
             var existingExercises = _context.WorkoutExercises.Where(we => we.WorkoutId == id);
             _context.WorkoutExercises.RemoveRange(existingExercises);
 
-            foreach (var exerciseDto in workoutDto.Exercises)
+            foreach (var exercise in workoutDto.WorkoutExercises)
             {
                 var workoutExercise = new WorkoutExercise
                 {
                     WorkoutId = workout.Id,
-                    ExerciseId = exerciseDto.Id!.Value
+                    ExerciseId = exercise.ExerciseId
                 };
-                _context.WorkoutExercises.Add(workoutExercise);
+                _context.Add(workoutExercise);
+                var existingSets = _context.WorkoutExerciseSets.Where(wes => wes.WorkoutExerciseId == workoutExercise.WorkoutExerciseId);
+                _context.WorkoutExerciseSets.RemoveRange(existingSets);
+                foreach(var set in exercise.WorkoutExerciseSets)
+                {
+                    var workoutExerciseSet = new WorkoutExerciseSet
+                    {
+                        WorkoutExercise = workoutExercise,
+                        Repetitions = set.Repetitions
+                    };
+                    _context.Add(workoutExerciseSet);
+                }
             }
             await _context.SaveChangesAsync();
         }
@@ -113,8 +141,14 @@ namespace Backend.Features.Workouts.Repositories
                 throw new Exception("Workout not found");
             }
 
+
             var existingExercises = _context.WorkoutExercises.Where(we => we.WorkoutId == id);
             _context.WorkoutExercises.RemoveRange(existingExercises);
+            foreach(var exercise in existingExercises)
+            {
+                var existingSets = _context.WorkoutExerciseSets.Where(wes => wes.WorkoutExerciseId == exercise.WorkoutExerciseId);
+                _context.WorkoutExerciseSets.RemoveRange(existingSets);
+            }
 
             _context.Workouts.Remove(workout);
             await _context.SaveChangesAsync();

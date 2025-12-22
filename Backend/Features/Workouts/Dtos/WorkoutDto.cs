@@ -6,6 +6,6 @@ namespace Backend.Features.Workouts.Dtos
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
-        public List<ExerciseDto> Exercises { get; set; } = []; 
+        public List<WorkoutExerciseDto> WorkoutExercises { get; set; } = []; 
     }
 }

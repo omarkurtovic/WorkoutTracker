@@ -16,6 +16,7 @@ namespace Backend
         public DbSet<Workout> Workouts { get; set; }
         public DbSet<Exercise> Exercises{get; set;}
         public DbSet<WorkoutExercise> WorkoutExercises{get; set;}
+        public DbSet<WorkoutExerciseSet> WorkoutExerciseSets { get; set; }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -25,9 +26,15 @@ namespace Backend
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Workout>()
+                .HasMany(w => w.WorkoutExercises)
+                .WithOne(we => we.Workout)
+                .HasForeignKey(we => we.WorkoutId);
+
             modelBuilder.Entity<WorkoutExercise>()
-                .HasKey(we => new { we.WorkoutId, we.ExerciseId });
+                .HasMany(we => we.WorkoutExerciseSets)
+                .WithOne(wes => wes.WorkoutExercise)
+                .HasForeignKey(wes => wes.WorkoutExerciseId);
         }
     }
 }

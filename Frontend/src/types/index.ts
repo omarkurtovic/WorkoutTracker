@@ -9,5 +9,16 @@ export interface Exercise {
 export interface Workout{
   id: number,
   name: string,
-  exercises: Exercise[]
+  workoutExercises: WorkoutExercise[]
+}
+
+export interface WorkoutExercise{
+  id: number,
+  exerciseId: number,
+  workoutExerciseSets: WorkoutExerciseSet[]
+}
+
+export interface WorkoutExerciseSet{
+  id: number,
+  repetitions: number
 }
