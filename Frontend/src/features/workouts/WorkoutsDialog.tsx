@@ -5,7 +5,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import type { Exercise, Workout } from '../../types';
+import type { Exercise, Workout, WorkoutExercise, WorkoutExerciseSet } from '../../types';
 import { Box, Stack, Typography } from '@mui/material';
 import ExercisePickerDialog from './ExercisePickerDialog';
 
@@ -18,14 +18,14 @@ interface WorkoutDialogProps {
 
 export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogProps) {
 
-    const [workout, setWorkout] = React.useState<Workout>({ id: 0, name: "", exercises: [] });
+    const [workout, setWorkout] = React.useState<Workout>({ id: 0, name: "", workoutExercises: [] });
     const [openExercisePickerDialog, setOpenExercisePickerDialog] = React.useState(false);
 
     React.useEffect(() => {
 
         const fetchWorkout = async () => {
             if (id === 0) {
-                setWorkout({ id: 0, name: "", exercises: [] });
+                setWorkout({ id: 0, name: "",  workoutExercises: [] });
                 return;
             }
             const url = `http://localhost:5103/workouts/${id}`;
@@ -52,10 +52,10 @@ export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogPr
     }, [open, id]);
 
 
-    function handleRemoveExercise(exerciseId: number) {
+    function handleRemoveExercise(exercise: WorkoutExercise) {
         setWorkout(prevWorkout => ({
             ...prevWorkout,
-            exercises: prevWorkout.exercises.filter(ex => ex.id !== exerciseId)
+            workoutExercises: prevWorkout.workoutExercises.filter(ex => ex !== exercise)
         }));
     }
 
@@ -69,12 +69,19 @@ export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogPr
     }
 
     function onExerciseSelected(exercise: Exercise) {
-        if(workout.exercises.find(ex => ex.id === exercise.id)){
+        if(workout.workoutExercises.find(ex => ex.id === exercise.id)){
             return;
         }
+        let workoutExercise = {
+            id: Math.max(0, ...workout.workoutExercises.map(ex => ex.id)) + 1,
+            exerciseId: exercise.id,
+            exerciseName: exercise.name,
+            workoutExerciseSets: []
+        } as WorkoutExercise;
+
         setWorkout(prevWorkout => ({
             ...prevWorkout,
-            exercises: [...prevWorkout.exercises, exercise]
+            workoutExercises: [...prevWorkout.workoutExercises, workoutExercise]
         }));
     }
 
@@ -84,7 +91,7 @@ export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogPr
             return;
         }
 
-        if(workout.exercises.length === 0){
+        if(workout.workoutExercises.length === 0){
             alert("Please add at least one exercise to the workout.");
             return;
         }
@@ -122,6 +129,54 @@ export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogPr
         onClose();
     }
 
+    function handleAddSet(workoutExercise: WorkoutExercise){
+        
+        let workoutExerciseIndex = workout.workoutExercises.findIndex(ex => ex == workoutExercise);
+        if(workoutExerciseIndex === -1){
+            return;
+        }
+        let nextId = Math.max(0, ...workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.map(s => s.id)) + 1;
+        workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.push({ id: nextId, repetitions: 0, weight: 0 });
+        setWorkout(prevWorkout => ({
+            ...prevWorkout,
+            workoutExercises: [...workout.workoutExercises]
+        }));
+    }
+
+    function handleRepsChange(workoutExercise: WorkoutExercise, set: WorkoutExerciseSet, value: number){
+        let exerciseIndex = workout.workoutExercises.findIndex(ex => ex == workoutExercise);
+        if(exerciseIndex === -1){
+            return;
+        }
+        let setIndex = workout.workoutExercises[exerciseIndex].workoutExerciseSets.findIndex(s => s == set);
+        if(setIndex === -1){
+            return;
+        }
+
+        workout.workoutExercises[exerciseIndex].workoutExerciseSets[setIndex].repetitions = value;
+        setWorkout(prevWorkout => ({
+            ...prevWorkout,
+            workoutExercises: [...workout.workoutExercises]
+        }));
+    }
+
+    function handleWeightChange(workoutExercise: WorkoutExercise, set: WorkoutExerciseSet, value: number){
+        let exerciseIndex = workout.workoutExercises.findIndex(ex => ex == workoutExercise);
+        if(exerciseIndex === -1){
+            return;
+        }
+        let setIndex = workout.workoutExercises[exerciseIndex].workoutExerciseSets.findIndex(s => s == set);
+        if(setIndex === -1){
+            return;
+        }
+
+        workout.workoutExercises[exerciseIndex].workoutExerciseSets[setIndex].weight = value;
+        setWorkout(prevWorkout => ({
+            ...prevWorkout,
+            workoutExercises: [...workout.workoutExercises]
+        }));
+    }
+
     return (
         <>
             <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -132,10 +187,19 @@ export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogPr
                             id="name" name="name" label="Name" type="text"
                             fullWidth variant="standard" value={workout.name} 
                             onChange={(e) => setWorkout(prevWorkout => ({ ...prevWorkout, name: e.target.value }))} />
-                        {workout.exercises.map(exercise => (
+                        {workout.workoutExercises.map(exercise => (
                             <Box key={exercise.id} sx={{ mt: 2, mb: 2, p: 2, border: '1px solid #ccc', borderRadius: '4px' }}>
-                                <Typography variant="h6">{exercise.name}</Typography>
-                                <Button onClick={() => handleRemoveExercise(exercise.id)}>Remove</Button>
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                    <Typography variant="h6">{exercise.exerciseName}</Typography>
+                                    <Button onClick={() => handleRemoveExercise(exercise)}>Remove</Button>
+                                </div>
+                                {exercise.workoutExerciseSets.map(set => (
+                                    <Stack key={set.id} direction="row" spacing={2} alignItems="center" sx={{ mt: 1, mb: 1 }}>
+                                        <TextField type='number' value={set.repetitions} label='Repetitions' onChange={(e) => handleRepsChange(exercise, set, Number(e.target.value))} />
+                                        <TextField type='number' value={set.weight} label='Weight' onChange={(e) => handleWeightChange(exercise, set, Number(e.target.value))} />
+                                    </Stack>
+                                ))}
+                                <Button variant='outlined' onClick={() => handleAddSet(exercise)} >Add Set</Button>
                             </Box>
                         ))}
                         <Button variant='outlined' onClick={() => handleAddExerciseClick()} fullWidth>Add Exercise</Button>
@@ -148,7 +212,7 @@ export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogPr
                     </div>
                 </DialogActions>
             </Dialog>
-            <ExercisePickerDialog open={openExercisePickerDialog} onClose={handleCloseExercisePickerDialog} selectedExercises={workout.exercises} onExerciseSelected={onExerciseSelected} />
+            <ExercisePickerDialog open={openExercisePickerDialog} onClose={handleCloseExercisePickerDialog} selectedExercises={workout.workoutExercises.map(we => ({ id: we.exerciseId, name: we.exerciseName, targetMuscle: "" }))} onExerciseSelected={onExerciseSelected} />
 
         </>
     )

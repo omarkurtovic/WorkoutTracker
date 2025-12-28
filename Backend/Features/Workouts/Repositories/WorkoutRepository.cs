@@ -29,9 +29,11 @@ namespace Backend.Features.Workouts.Repositories
                 WorkoutExercises = w.WorkoutExercises.Select(we => new WorkoutExerciseDto
                 {
                     ExerciseId = we.ExerciseId,
+                    ExerciseName = we.Exercise.Name,
                     WorkoutExerciseSets = we.WorkoutExerciseSets.Select(wes => new WorkoutExerciseSetDto
                     {
-                        Repetitions = wes.Repetitions
+                        Repetitions = wes.Repetitions,
+                        Weight = wes.Weight
                     }).ToList()
                 }).ToList()
             }).ToListAsync();
@@ -58,9 +60,11 @@ namespace Backend.Features.Workouts.Repositories
                 WorkoutExercises = workout.WorkoutExercises.Select(we => new WorkoutExerciseDto
                 {
                     ExerciseId = we.ExerciseId,
+                    ExerciseName = we.Exercise.Name,
                     WorkoutExerciseSets = we.WorkoutExerciseSets.Select(wes => new WorkoutExerciseSetDto
                     {
-                        Repetitions = wes.Repetitions
+                        Repetitions = wes.Repetitions,
+                        Weight = wes.Weight
                     }).ToList()
                 }).ToList()
             };
@@ -87,7 +91,8 @@ namespace Backend.Features.Workouts.Repositories
                     var workoutExerciseSet = new WorkoutExerciseSet
                     {
                         WorkoutExercise = workoutExercise,
-                        Repetitions = set.Repetitions
+                        Repetitions = set.Repetitions,
+                        Weight = set.Weight
                     };
                     _context.Add(workoutExerciseSet);
                 }
@@ -124,7 +129,8 @@ namespace Backend.Features.Workouts.Repositories
                     var workoutExerciseSet = new WorkoutExerciseSet
                     {
                         WorkoutExercise = workoutExercise,
-                        Repetitions = set.Repetitions
+                        Repetitions = set.Repetitions,
+                        Weight = set.Weight
                     };
                     _context.Add(workoutExerciseSet);
                 }

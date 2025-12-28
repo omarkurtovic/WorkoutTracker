@@ -15,10 +15,12 @@ export interface Workout{
 export interface WorkoutExercise{
   id: number,
   exerciseId: number,
+  exerciseName: string,
   workoutExerciseSets: WorkoutExerciseSet[]
 }
 
 export interface WorkoutExerciseSet{
   id: number,
-  repetitions: number
+  repetitions: number,
+  weight: number
 }

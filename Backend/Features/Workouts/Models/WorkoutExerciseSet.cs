@@ -9,5 +9,6 @@ namespace Backend.Features.Workouts.Models
         public int WorkoutExerciseId { get; set; }
         public WorkoutExercise WorkoutExercise { get; set; } = null!;
         public int Repetitions { get; set; }
+        public int Weight{get; set;}
     }
 }

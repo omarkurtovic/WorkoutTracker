@@ -12,11 +12,17 @@ function App() {
   const [showWorkouts, setShowWorkouts] = React.useState(false);
 
   const handleOpenExercises = () => {
+    if(showExercises){
+      return;
+    }
     setShowWorkouts(false);
     setShowExercises(!showExercises);
   }
 
   const handleOpenWorkouts = () => {
+    if(showWorkouts){
+      return;
+    }
     setShowExercises(false);
     setShowWorkouts(!showWorkouts);
   }
