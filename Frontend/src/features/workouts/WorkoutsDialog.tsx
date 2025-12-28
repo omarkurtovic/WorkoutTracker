@@ -135,8 +135,16 @@ export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogPr
         if(workoutExerciseIndex === -1){
             return;
         }
+
         let nextId = Math.max(0, ...workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.map(s => s.id)) + 1;
-        workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.push({ id: nextId, repetitions: 0, weight: 0 });
+        if(workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.length === 0){
+            workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.push({ id: nextId, repetitions: 0, weight: 0 });
+        }
+        else{
+            let lastSet = workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets[workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.length -1];
+            workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.push({ id: nextId, repetitions: lastSet.repetitions, weight: lastSet.weight });
+        }
+        
         setWorkout(prevWorkout => ({
             ...prevWorkout,
             workoutExercises: [...workout.workoutExercises]
@@ -179,7 +187,7 @@ export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogPr
 
     return (
         <>
-            <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+            <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{sx: { maxHeight: '80vh', },}}>
                 <DialogTitle>{id === 0 ? "Add Workout" : "Edit Workout"}</DialogTitle>
                 <DialogContent>
                     <Stack spacing={3} marginTop={2}>
@@ -189,17 +197,19 @@ export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogPr
                             onChange={(e) => setWorkout(prevWorkout => ({ ...prevWorkout, name: e.target.value }))} />
                         {workout.workoutExercises.map(exercise => (
                             <Box key={exercise.id} sx={{ mt: 2, mb: 2, p: 2, border: '1px solid #ccc', borderRadius: '4px' }}>
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                    <Typography variant="h6">{exercise.exerciseName}</Typography>
-                                    <Button onClick={() => handleRemoveExercise(exercise)}>Remove</Button>
-                                </div>
-                                {exercise.workoutExerciseSets.map(set => (
-                                    <Stack key={set.id} direction="row" spacing={2} alignItems="center" sx={{ mt: 1, mb: 1 }}>
-                                        <TextField type='number' value={set.repetitions} label='Repetitions' onChange={(e) => handleRepsChange(exercise, set, Number(e.target.value))} />
-                                        <TextField type='number' value={set.weight} label='Weight' onChange={(e) => handleWeightChange(exercise, set, Number(e.target.value))} />
-                                    </Stack>
-                                ))}
-                                <Button variant='outlined' onClick={() => handleAddSet(exercise)} >Add Set</Button>
+                                <Stack direction="column" spacing={2} justifyContent="space-between">
+                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%'}}>
+                                        <Typography variant="h6">{exercise.exerciseName}</Typography>
+                                        <Button onClick={() => handleRemoveExercise(exercise)} color="error" variant="outlined">Remove</Button>
+                                    </div>
+                                    {exercise.workoutExerciseSets.map(set => (
+                                        <Stack key={set.id} direction="row" spacing={2} alignItems="center" sx={{ mt: 1, mb: 1 }}>
+                                            <TextField type='number' value={set.repetitions} label='Repetitions' onChange={(e) => handleRepsChange(exercise, set, Number(e.target.value))} />
+                                            <TextField type='number' value={set.weight} label='Weight' onChange={(e) => handleWeightChange(exercise, set, Number(e.target.value))} />
+                                        </Stack>
+                                    ))}
+                                    <Button variant='outlined' onClick={() => handleAddSet(exercise)} >Add Set</Button>
+                                </Stack>
                             </Box>
                         ))}
                         <Button variant='outlined' onClick={() => handleAddExerciseClick()} fullWidth>Add Exercise</Button>
