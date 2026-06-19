@@ -16,14 +16,15 @@ import SuccessAlert from '../shared/components/SuccessAlert';
 import type { Workout } from '../../types';
 import WorkoutsDialog from './WorkoutsDialog';
 
-function Workouts() {
+interface WorkoutsProps {
+  showError: (message: string) => void;
+}
+
+function Workouts(workoutProps: WorkoutsProps) {
 
   const [workouts, setWorkouts] = React.useState<Workout[]>([]);
   const [openWorkoutDialog, setOpenWorkoutDialog] = React.useState(false);
   const [workoutId, setWorkoutId] = React.useState(0);
-
-  const [successMessage, setSuccessMessage] = React.useState("");
-  const [errorMessage, setErrorMessage] = React.useState("");
 
   function refreshWorkouts() {
     fetch("http://localhost:5103/workouts")
@@ -62,7 +63,7 @@ function Workouts() {
     try {
       const response = await fetch(url, { method: 'DELETE' });
       if (!response.ok) {
-        setErrorMessage("Error deleting workout!");
+        workoutProps.showError("Error deleting workout!");
         console.error('Failed to delete workout:', response.statusText);
         return;
       }
@@ -72,7 +73,7 @@ function Workouts() {
 
     } catch (error) {
       console.error('Error deleting workout:', error);
-      setErrorMessage("Error deleting workout!");
+      workoutProps.showError("Error deleting workout!");
     }
   };
 

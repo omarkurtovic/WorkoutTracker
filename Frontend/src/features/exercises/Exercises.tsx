@@ -43,20 +43,19 @@ function Exercises() {
     setExerciseId(0);
     setOpenExerciseDialog(true);
   };
+
   const handleClose = () => {
     setOpenExerciseDialog(false);
     refreshExercises();
   };
 
 
-  // edit
   const handleEdit = (id: number) => {
     setExerciseId(id);
     setOpenExerciseDialog(true);
   }
 
 
-  // delete
   const handleDelete = async (id: number) => {
     const url = `http://localhost:5103/exercises/${id}`;
     try {
