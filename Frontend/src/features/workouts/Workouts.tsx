@@ -5,26 +5,20 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
 
-
-
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import ErrorAlert from '../shared/components/ErrorAlert';
-import SuccessAlert from '../shared/components/SuccessAlert';
 import type { Workout } from '../../types';
 import WorkoutsDialog from './WorkoutsDialog';
+import { useSnackbar } from '../../contexts/SnackbarContext';
 
-interface WorkoutsProps {
-  showError: (message: string) => void;
-}
-
-function Workouts(workoutProps: WorkoutsProps) {
+function Workouts() {
 
   const [workouts, setWorkouts] = React.useState<Workout[]>([]);
   const [openWorkoutDialog, setOpenWorkoutDialog] = React.useState(false);
   const [workoutId, setWorkoutId] = React.useState(0);
+  const { showAlert, showSuccess } = useSnackbar();
 
   function refreshWorkouts() {
     fetch("http://localhost:5103/workouts")
@@ -35,6 +29,7 @@ function Workouts(workoutProps: WorkoutsProps) {
   }
 
   React.useEffect(() => {
+    showAlert("Workouts component mounted");
     refreshWorkouts();
   }, []);
 
@@ -63,17 +58,17 @@ function Workouts(workoutProps: WorkoutsProps) {
     try {
       const response = await fetch(url, { method: 'DELETE' });
       if (!response.ok) {
-        workoutProps.showError("Error deleting workout!");
+        showAlert("Error deleting workout!");
         console.error('Failed to delete workout:', response.statusText);
         return;
       }
 
-      setSuccessMessage("Workout deleted successfully!");
+      showSuccess("Workout deleted successfully!");
       refreshWorkouts();
 
     } catch (error) {
       console.error('Error deleting workout:', error);
-      workoutProps.showError("Error deleting workout!");
+      showAlert("Error deleting workout!");
     }
   };
 
@@ -110,9 +105,6 @@ function Workouts(workoutProps: WorkoutsProps) {
         ))}
       </Grid>
       <WorkoutsDialog open={openWorkoutDialog} onClose={handleCloseDialog} id={workoutId} />
-
-      <SuccessAlert message={successMessage} />
-      <ErrorAlert message={errorMessage} />
     </>
   )
 }

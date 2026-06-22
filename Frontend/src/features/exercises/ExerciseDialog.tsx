@@ -6,8 +6,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import type { Exercise } from '../../types';
-import SuccessAlert from '../shared/components/SuccessAlert';
-import ErrorAlert from '../shared/components/ErrorAlert';
+import { useSnackbar } from '../../contexts/SnackbarContext';
 
 
 interface ExerciseDialogProps {
@@ -16,20 +15,17 @@ interface ExerciseDialogProps {
   id: number;
 }
 
-export default function ExerciseDialog({ open, onClose, id=0 }: ExerciseDialogProps) {
+export default function ExerciseDialog(exerciseDialogProps: ExerciseDialogProps) {
 
   const [name, setName] = React.useState("");
   const [targetMuscle, setTargetMuscle] = React.useState("");
   const [description, setDescription] = React.useState("");
-
-
-  const [successMessage, setSuccessMessage] = React.useState("");
-  const [errorMessage, setErrorMessage] = React.useState("");
+  const { showAlert, showSuccess } = useSnackbar();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const exercise: Exercise = {
-      id: id,
+      id: exerciseDialogProps.id,
       name: name,
       targetMuscle: targetMuscle,
       description: description || undefined,
@@ -38,12 +34,12 @@ export default function ExerciseDialog({ open, onClose, id=0 }: ExerciseDialogPr
     try {
       let url = "";
       let method = "";
-      if(id === 0){
+      if(exerciseDialogProps.id === 0){
         url = `http://localhost:5103/exercises`;
         method = "POST";
       }
       else{
-        url = `http://localhost:5103/exercises/${id}`;
+        url = `http://localhost:5103/exercises/${exerciseDialogProps.id}`;
         method = "PUT";
       }
       
@@ -53,59 +49,59 @@ export default function ExerciseDialog({ open, onClose, id=0 }: ExerciseDialogPr
         body: JSON.stringify(exercise),
       });
       if (!response.ok) {
-        setErrorMessage("Error saving exercise!");
+        showAlert("Error saving exercise!");
         console.error('Failed to save exercise:', response.statusText);
       }
       else{
-        setSuccessMessage("Exercise saved successfully!");
+        showSuccess("Exercise saved successfully!");
       }
     }
     catch (error) {
       console.error('Error saving exercise:', error);
-      setErrorMessage("Error saving exercise!");
+      showAlert("Error saving exercise!");
     }
 
-    onClose();
+    exerciseDialogProps.onClose();
   };
 
     React.useEffect(() => {
       const fetchData = async () => {
-        if (id === 0){
+        if (exerciseDialogProps.id === 0){
           setName("");
           setTargetMuscle("");
           setDescription("");
           return;
         }
 
-         const url = `http://localhost:5103/exercises/${id}`;
+         const url = `http://localhost:5103/exercises/${exerciseDialogProps.id}`;
           try {
             const response = await fetch(url, {method: 'GET'});
             if (!response.ok) {
-              setErrorMessage("Error getting exercise!");
+              showAlert("Error getting exercise!");
               console.error('Failed to get exercise:', response.statusText);
-              onClose();
+              exerciseDialogProps.onClose();
               return; 
             }
             
-            let data = await response.json();
+            const data = await response.json();
             setName(data.name);
             setTargetMuscle(data.targetMuscle);
             setDescription(data.description || "");
 
             } catch (error) {
               console.error('Error getting exercise:', error);
-              setErrorMessage("Error getting exercise!");
-              onClose();
+              showAlert("Error getting exercise!");
+              exerciseDialogProps.onClose();
             }
           }
 
           fetchData();
-      }, [open, id]);
+      }, [exerciseDialogProps.open, exerciseDialogProps.id]);
 
   return (
     <>
-    <Dialog open={open} onClose={onClose}>
-        <DialogTitle>{id === 0 ? "Add Exercise" : "Edit Exercise"}</DialogTitle>
+    <Dialog open={exerciseDialogProps.open} onClose={exerciseDialogProps.onClose}>
+        <DialogTitle>{exerciseDialogProps.id === 0 ? "Add Exercise" : "Edit Exercise"}</DialogTitle>
         <DialogContent>
           <form onSubmit={handleSubmit} id="subscription-form">
             <TextField autoFocus required margin="dense"
@@ -120,15 +116,12 @@ export default function ExerciseDialog({ open, onClose, id=0 }: ExerciseDialogPr
           </form>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={exerciseDialogProps.onClose}>Cancel</Button>
           <Button type="submit" form="subscription-form">
             Save
           </Button>
         </DialogActions>
       </Dialog>
-
-      <SuccessAlert message={successMessage} />
-      <ErrorAlert message={errorMessage} />
       </>
   )
 }

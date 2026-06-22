@@ -1,31 +1,24 @@
-import * as React from 'react';
+import React, { useState } from 'react';
+import { useSnackbar } from '../../contexts/SnackbarContext';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
 import ExerciseDialog from './ExerciseDialog';
 import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
-
 
 
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import type { Exercise } from '../../types';
-import SuccessAlert from '../shared/components/SuccessAlert';
-import ErrorAlert from '../shared/components/ErrorAlert';
-
 
 function Exercises() {
 
-  const [exercises, setExercises] = React.useState<Exercise[]>([]);
-  const [openExerciseDialog, setOpenExerciseDialog] = React.useState(false);
-  const [exerciseId, setExerciseId] = React.useState(0);
-
-  const [successMessage, setSuccessMessage] = React.useState("");
-  const [errorMessage, setErrorMessage] = React.useState("");
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [openExerciseDialog, setOpenExerciseDialog] = useState(false);
+  const [exerciseId, setExerciseId] = useState(0);
+  const { showAlert, showSuccess } = useSnackbar();
 
   function refreshExercises() {
     fetch("http://localhost:5103/exercises")
@@ -36,6 +29,7 @@ function Exercises() {
   }
 
   React.useEffect(() => {
+    showAlert("Exercises component mounted");
     refreshExercises();
   }, []);
 
@@ -61,17 +55,17 @@ function Exercises() {
     try {
       const response = await fetch(url, { method: 'DELETE' });
       if (!response.ok) {
-        setErrorMessage("Error deleting exercise!");
+        showAlert("Error deleting exercise!");
         console.error('Failed to delete exercise:', response.statusText);
         return;
       }
 
-      setSuccessMessage("Exercise deleted successfully!");
+      showSuccess("Exercise deleted successfully!");
       refreshExercises();
 
     } catch (error) {
       console.error('Error deleting exercise:', error);
-      setErrorMessage("Error deleting exercise!");
+      showAlert("Error deleting exercise!");
     }
   };
 
@@ -109,9 +103,6 @@ function Exercises() {
         ))}
       </Grid>
       <ExerciseDialog open={openExerciseDialog} onClose={handleClose} id={exerciseId} />
-
-      <SuccessAlert message={successMessage} />
-      <ErrorAlert message={errorMessage} />
     </>
   )
 }

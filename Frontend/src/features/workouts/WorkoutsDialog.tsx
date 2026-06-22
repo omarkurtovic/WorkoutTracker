@@ -8,6 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import type { Exercise, Workout, WorkoutExercise, WorkoutExerciseSet } from '../../types';
 import { Box, Stack, Typography } from '@mui/material';
 import ExercisePickerDialog from './ExercisePickerDialog';
+import { useSnackbar } from '../../contexts/SnackbarContext';
 
 
 interface WorkoutDialogProps {
@@ -16,40 +17,41 @@ interface WorkoutDialogProps {
     id: number;
 }
 
-export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogProps) {
+export default function WorkoutDialog(workoutDialogProps: WorkoutDialogProps) {
 
     const [workout, setWorkout] = React.useState<Workout>({ id: 0, name: "", workoutExercises: [] });
     const [openExercisePickerDialog, setOpenExercisePickerDialog] = React.useState(false);
+    const { showAlert, showSuccess } = useSnackbar();
 
     React.useEffect(() => {
 
         const fetchWorkout = async () => {
-            if (id === 0) {
+            if (workoutDialogProps.id === 0) {
                 setWorkout({ id: 0, name: "",  workoutExercises: [] });
                 return;
             }
-            const url = `http://localhost:5103/workouts/${id}`;
+            const url = `http://localhost:5103/workouts/${workoutDialogProps.id}`;
             try {
                 const response = await fetch(url, { method: 'GET' });
                 if (!response.ok) {
-                    alert("Error getting workout!");
+                    showAlert("Error getting workout!");
                     console.error('Failed to get workout:', response.statusText);
-                    onClose();
+                    workoutDialogProps.onClose();
                     return;
                 }
 
-                let data = await response.json();
+                const data = await response.json();
                 setWorkout(data);
 
             } catch (error) {
                 console.error('Error getting workout:', error);
-                alert("Error getting workout!");
-                onClose();
+                showAlert("Error getting workout!");
+                workoutDialogProps.onClose();
             }
         }
 
         fetchWorkout();
-    }, [open, id]);
+    }, [workoutDialogProps.open, workoutDialogProps.id]);
 
 
     function handleRemoveExercise(exercise: WorkoutExercise) {
@@ -72,7 +74,7 @@ export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogPr
         if(workout.workoutExercises.find(ex => ex.id === exercise.id)){
             return;
         }
-        let workoutExercise = {
+        const workoutExercise = {
             id: Math.max(0, ...workout.workoutExercises.map(ex => ex.id)) + 1,
             exerciseId: exercise.id,
             exerciseName: exercise.name,
@@ -114,34 +116,34 @@ export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogPr
             body: JSON.stringify(workout),
           });
           if (!response.ok) {
-            alert("Error saving workout!");
+            showAlert("Error saving workout!");
             console.error('Failed to save workout:', response.statusText);
           }
           else{
-            alert("Workout saved successfully!");
+            showSuccess("Workout saved successfully!");
           }
         }
         catch (error) {
           console.error('Error saving workout:', error);
-          alert("Error saving workout!");
+          showAlert("Error saving workout!");
         }
 
-        onClose();
+        workoutDialogProps.onClose();
     }
 
     function handleAddSet(workoutExercise: WorkoutExercise){
         
-        let workoutExerciseIndex = workout.workoutExercises.findIndex(ex => ex == workoutExercise);
+        const workoutExerciseIndex = workout.workoutExercises.findIndex(ex => ex == workoutExercise);
         if(workoutExerciseIndex === -1){
             return;
         }
 
-        let nextId = Math.max(0, ...workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.map(s => s.id)) + 1;
+        const nextId = Math.max(0, ...workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.map(s => s.id)) + 1;
         if(workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.length === 0){
             workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.push({ id: nextId, repetitions: 0, weight: 0 });
         }
         else{
-            let lastSet = workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets[workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.length -1];
+            const lastSet = workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets[workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.length -1];
             workout.workoutExercises[workoutExerciseIndex].workoutExerciseSets.push({ id: nextId, repetitions: lastSet.repetitions, weight: lastSet.weight });
         }
         
@@ -152,43 +154,40 @@ export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogPr
     }
 
     function handleRepsChange(workoutExercise: WorkoutExercise, set: WorkoutExerciseSet, value: number){
-        let exerciseIndex = workout.workoutExercises.findIndex(ex => ex == workoutExercise);
+        const exerciseIndex = workout.workoutExercises.findIndex(ex => ex == workoutExercise);
         if(exerciseIndex === -1){
             return;
         }
-        let setIndex = workout.workoutExercises[exerciseIndex].workoutExerciseSets.findIndex(s => s == set);
+        const setIndex = workout.workoutExercises[exerciseIndex].workoutExerciseSets.findIndex(s => s == set);
         if(setIndex === -1){
             return;
         }
 
-        workout.workoutExercises[exerciseIndex].workoutExerciseSets[setIndex].repetitions = value;
-        setWorkout(prevWorkout => ({
-            ...prevWorkout,
-            workoutExercises: [...workout.workoutExercises]
-        }));
+        const newWorkout = { ...workout };
+        newWorkout.workoutExercises[exerciseIndex].workoutExerciseSets[setIndex].repetitions = value;
+        setWorkout(newWorkout);
     }
 
     function handleWeightChange(workoutExercise: WorkoutExercise, set: WorkoutExerciseSet, value: number){
-        let exerciseIndex = workout.workoutExercises.findIndex(ex => ex == workoutExercise);
+        const exerciseIndex = workout.workoutExercises.findIndex(ex => ex == workoutExercise);
         if(exerciseIndex === -1){
             return;
         }
-        let setIndex = workout.workoutExercises[exerciseIndex].workoutExerciseSets.findIndex(s => s == set);
+
+        const setIndex = workout.workoutExercises[exerciseIndex].workoutExerciseSets.findIndex(s => s == set);
         if(setIndex === -1){
             return;
         }
 
-        workout.workoutExercises[exerciseIndex].workoutExerciseSets[setIndex].weight = value;
-        setWorkout(prevWorkout => ({
-            ...prevWorkout,
-            workoutExercises: [...workout.workoutExercises]
-        }));
+        const newWorkout = { ...workout };
+        newWorkout.workoutExercises[exerciseIndex].workoutExerciseSets[setIndex].weight = value;
+        setWorkout(newWorkout);
     }
 
     return (
         <>
-            <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{sx: { maxHeight: '80vh', },}}>
-                <DialogTitle>{id === 0 ? "Add Workout" : "Edit Workout"}</DialogTitle>
+            <Dialog open={workoutDialogProps.open} onClose={workoutDialogProps.onClose} maxWidth="sm" fullWidth PaperProps={{sx: { maxHeight: '80vh', },}}>
+                <DialogTitle>{workoutDialogProps.id === 0 ? "Add Workout" : "Edit Workout"}</DialogTitle>
                 <DialogContent>
                     <Stack spacing={3} marginTop={2}>
                         <TextField autoFocus required margin="dense"
@@ -217,7 +216,7 @@ export default function WorkoutDialog({ open, onClose, id = 0 }: WorkoutDialogPr
                 </DialogContent>
                 <DialogActions>
                     <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', width: '100%'}}>
-                        <Button onClick={onClose} variant="outlined">Cancel</Button>
+                        <Button onClick={workoutDialogProps.onClose} variant="outlined">Cancel</Button>
                         <Button onClick={onSave} fullWidth variant="contained" >{workout.id == 0 ? "Add" : "Save"}</Button>
                     </div>
                 </DialogActions>

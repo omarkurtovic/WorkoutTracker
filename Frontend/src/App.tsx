@@ -2,23 +2,12 @@ import './App.css'
 import Container from '@mui/material/Container'
 import Button from '@mui/material/Button'
 import React from 'react';
-import { AppBar, Box, IconButton, Snackbar, Stack, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, Stack, Toolbar, Typography } from '@mui/material';
 import Exercises from './features/exercises/Exercises';
 import Workouts from './features/workouts/Workouts';
+import { SnackbarProvider } from './contexts/SnackbarContext';
 
 function App() {
-
-  const [errorAlertOpen, setErrorAlertOpen] = React.useState(false);
-  const [errorAlertMessage, setErrorAlertMessage] = React.useState("");
-
-  function showErrorAlert(message: string) {
-    setErrorAlertMessage(message);
-    setErrorAlertOpen(true);
-  }
-
-  function closeErrorAlert() {
-    setErrorAlertOpen(false);
-  }
 
   const [showExercises, setShowExercises] = React.useState(true);
   const [showWorkouts, setShowWorkouts] = React.useState(false);
@@ -42,6 +31,8 @@ function App() {
 
   return (
     <>
+    <SnackbarProvider>
+
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Box sx={{flexGrow:1}}>
           <AppBar position="static">
@@ -59,24 +50,16 @@ function App() {
         </Box>
         <Box>
           {showExercises && 
-            <Exercises showError={showErrorAlert}/>
+            <Exercises />
           }
         </Box>
         <Box>
           {showWorkouts && 
-            <Workouts showError={showErrorAlert} />
+            <Workouts />
           }
         </Box>
     </Container>
-
-    <Snackbar
-        open={errorAlertOpen}
-        autoHideDuration={6000}
-        onClose={closeErrorAlert}
-        message={errorAlertMessage}
-      />
-    
-
+    </SnackbarProvider>
 
   </>
   )

@@ -28,7 +28,7 @@ export default function ExercisePickerDialog({ open, onClose, selectedExercises,
                     return;
                 }
 
-                let data: Exercise[] = await response.json();
+                const data: Exercise[] = await response.json();
                 if (data.length == 0) {
                     alert("No exercises available. Please add exercises first.");
                     onClose();
