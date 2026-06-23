@@ -8,7 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import type { Exercise, Workout, WorkoutExercise, WorkoutExerciseSet } from '../../types';
 import { Box, Stack, Typography } from '@mui/material';
 import ExercisePickerDialog from './ExercisePickerDialog';
-import { useSnackbar } from '../../contexts/SnackbarContext';
+import { useAlert } from '../../contexts/AlertContext';
 
 
 interface WorkoutDialogProps {
@@ -21,7 +21,7 @@ export default function WorkoutDialog(workoutDialogProps: WorkoutDialogProps) {
 
     const [workout, setWorkout] = React.useState<Workout>({ id: 0, name: "", workoutExercises: [] });
     const [openExercisePickerDialog, setOpenExercisePickerDialog] = React.useState(false);
-    const { showAlert, showSuccess } = useSnackbar();
+    const { showAlert, showSuccess } = useAlert();
 
     React.useEffect(() => {
 

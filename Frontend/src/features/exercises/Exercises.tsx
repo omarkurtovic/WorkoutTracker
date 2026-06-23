@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSnackbar } from '../../contexts/SnackbarContext';
+import { useAlert } from '../../contexts/AlertContext';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import ExerciseDialog from './ExerciseDialog';
@@ -12,13 +12,15 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import type { Exercise } from '../../types';
+import { useConfirm } from '../../contexts/ConfirmContext';
 
 function Exercises() {
 
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [openExerciseDialog, setOpenExerciseDialog] = useState(false);
   const [exerciseId, setExerciseId] = useState(0);
-  const { showAlert, showSuccess } = useSnackbar();
+  const { showAlert, showSuccess } = useAlert();
+  const { showConfirm } = useConfirm();
 
   function refreshExercises() {
     fetch("http://localhost:5103/exercises")
@@ -29,7 +31,6 @@ function Exercises() {
   }
 
   React.useEffect(() => {
-    showAlert("Exercises component mounted");
     refreshExercises();
   }, []);
 
@@ -51,6 +52,12 @@ function Exercises() {
 
 
   const handleDelete = async (id: number) => {
+
+    const confirmed = await showConfirm("Are you sure you want to delete this exercise?", "Confirm Delete");
+    if (!confirmed) {
+      return;
+    }
+    
     const url = `http://localhost:5103/exercises/${id}`;
     try {
       const response = await fetch(url, { method: 'DELETE' });

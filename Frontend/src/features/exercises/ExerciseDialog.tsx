@@ -6,7 +6,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import type { Exercise } from '../../types';
-import { useSnackbar } from '../../contexts/SnackbarContext';
+import { useAlert } from '../../contexts/AlertContext';
 
 
 interface ExerciseDialogProps {
@@ -20,7 +20,7 @@ export default function ExerciseDialog(exerciseDialogProps: ExerciseDialogProps)
   const [name, setName] = React.useState("");
   const [targetMuscle, setTargetMuscle] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const { showAlert, showSuccess } = useSnackbar();
+  const { showAlert, showSuccess } = useAlert();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

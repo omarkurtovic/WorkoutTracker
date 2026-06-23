@@ -5,7 +5,8 @@ import React from 'react';
 import { AppBar, Box, Stack, Toolbar, Typography } from '@mui/material';
 import Exercises from './features/exercises/Exercises';
 import Workouts from './features/workouts/Workouts';
-import { SnackbarProvider } from './contexts/SnackbarContext';
+import { AlertProvider } from './contexts/AlertContext';
+import { ConfirmProvider } from './contexts/ConfirmContext';
 
 function App() {
 
@@ -31,7 +32,8 @@ function App() {
 
   return (
     <>
-    <SnackbarProvider>
+    <AlertProvider>
+    <ConfirmProvider> 
 
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Box sx={{flexGrow:1}}>
@@ -59,7 +61,8 @@ function App() {
           }
         </Box>
     </Container>
-    </SnackbarProvider>
+    </ConfirmProvider>
+    </AlertProvider>
 
   </>
   )

@@ -11,14 +11,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import type { Workout } from '../../types';
 import WorkoutsDialog from './WorkoutsDialog';
-import { useSnackbar } from '../../contexts/SnackbarContext';
+import { useAlert } from '../../contexts/AlertContext';
 
 function Workouts() {
 
   const [workouts, setWorkouts] = React.useState<Workout[]>([]);
   const [openWorkoutDialog, setOpenWorkoutDialog] = React.useState(false);
   const [workoutId, setWorkoutId] = React.useState(0);
-  const { showAlert, showSuccess } = useSnackbar();
+  const { showAlert, showSuccess } = useAlert();
 
   function refreshWorkouts() {
     fetch("http://localhost:5103/workouts")
@@ -29,7 +29,6 @@ function Workouts() {
   }
 
   React.useEffect(() => {
-    showAlert("Workouts component mounted");
     refreshWorkouts();
   }, []);
 
