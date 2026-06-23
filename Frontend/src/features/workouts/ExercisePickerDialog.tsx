@@ -2,6 +2,7 @@ import React from "react";
 import type { Exercise } from "../../types";
 import TextField from "@mui/material/TextField";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack } from "@mui/material";
+import { useAlert } from "../../contexts/AlertContext";
 
 interface ExercisePickerDialogProps {
     open: boolean;
@@ -15,6 +16,7 @@ export default function ExercisePickerDialog({ open, onClose, selectedExercises,
     const [allExercises, setAllExercises] = React.useState<Exercise[]>([]);
     const [filteredExercises, setFilteredExercises] = React.useState<Exercise[]>([]);
     const [selectedExercise, setSelectedExercise] = React.useState<Exercise | null>(null);
+    const { showAlert } = useAlert();
 
     React.useEffect(() => {
         const fetchExercises = async () => {
@@ -22,15 +24,15 @@ export default function ExercisePickerDialog({ open, onClose, selectedExercises,
             try {
                 const response = await fetch(url, { method: 'GET' });
                 if (!response.ok) {
-                    alert("Error getting exercises!");
+                    showAlert("Error getting exercises!");
                     console.error('Failed to get exercises:', response.statusText);
                     onClose();
                     return;
                 }
 
-                let data: Exercise[] = await response.json();
+                const data: Exercise[] = await response.json();
                 if (data.length == 0) {
-                    alert("No exercises available. Please add exercises first.");
+                    showAlert("No exercises available. Please add exercises first.");
                     onClose();
                     return;
                 }
@@ -40,7 +42,7 @@ export default function ExercisePickerDialog({ open, onClose, selectedExercises,
                 setSelectedExercise(null);
 
             } catch (error) {
-                alert("Error getting exercises!");
+                showAlert("Error getting exercises!");
                 console.error('Error getting exercises:', error);
                 onClose();
             }
@@ -67,7 +69,7 @@ export default function ExercisePickerDialog({ open, onClose, selectedExercises,
 
     function handleAddExercise() {
         if (!selectedExercise) {
-            alert("Please select an exercise to add.");
+            showAlert("Please select an exercise to add.");
             return;
         }
 
